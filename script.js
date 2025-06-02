@@ -66,7 +66,6 @@ let animations = [];
 let mixer;
 let clock;
 let highlightedPart = null;
-const COCKPIT_MODEL_URL = 'https://raw.githubusercontent.com/username/a320-cockpit/main/a320_cockpit.glb';
 
 // 初始化 Three.js 場景
 function initThreeJS() {
@@ -115,14 +114,53 @@ function initThreeJS() {
     pointLight.position.set(0, 2, 0);
     scene.add(pointLight);
 
-    // 載入 3D 模型
-    loadCockpitModel();
+    // 創建臨時的駕駛艙模型（使用基本幾何體）
+    createTemporaryCockpit();
 
     // 創建互動按鈕
     createInteractiveButtons();
 
     // 開始動畫循環
     animate();
+}
+
+// 創建臨時的駕駛艙模型
+function createTemporaryCockpit() {
+    // 創建駕駛艙外殼
+    const cockpitGeometry = new THREE.BoxGeometry(2, 1.5, 1.5);
+    const cockpitMaterial = new THREE.MeshPhongMaterial({
+        color: 0x404040,
+        wireframe: true
+    });
+    cockpitModel = new THREE.Mesh(cockpitGeometry, cockpitMaterial);
+    scene.add(cockpitModel);
+
+    // 創建儀表板
+    const dashboardGeometry = new THREE.BoxGeometry(1.8, 0.5, 0.3);
+    const dashboardMaterial = new THREE.MeshPhongMaterial({
+        color: 0x202020,
+        wireframe: true
+    });
+    const dashboard = new THREE.Mesh(dashboardGeometry, dashboardMaterial);
+    dashboard.position.set(0, 0.8, -0.5);
+    cockpitModel.add(dashboard);
+
+    // 創建座椅
+    const seatGeometry = new THREE.BoxGeometry(0.6, 0.8, 0.6);
+    const seatMaterial = new THREE.MeshPhongMaterial({
+        color: 0x303030,
+        wireframe: true
+    });
+    
+    // 駕駛座
+    const pilotSeat = new THREE.Mesh(seatGeometry, seatMaterial);
+    pilotSeat.position.set(-0.5, 0.4, 0.3);
+    cockpitModel.add(pilotSeat);
+    
+    // 副駕駛座
+    const copilotSeat = new THREE.Mesh(seatGeometry, seatMaterial);
+    copilotSeat.position.set(0.5, 0.4, 0.3);
+    cockpitModel.add(copilotSeat);
 }
 
 // 載入駕駛艙模型
@@ -300,6 +338,30 @@ function onMouseClick(event) {
 }
 
 renderer?.domElement.addEventListener('click', onMouseClick);
+
+// 處理滑鼠懸停
+function onMouseMove(event) {
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(interactiveButtons);
+
+    document.body.style.cursor = intersects.length > 0 ? 'pointer' : 'default';
+
+    interactiveButtons.forEach(button => {
+        if (intersects.length > 0 && intersects[0].object === button) {
+            button.material.emissiveIntensity = 1.0;
+            const item = checklistItems.find(item => item.id === button.userData.itemId);
+            if (item) {
+                highlightCockpitPart(item.cockpitPart);
+            }
+        } else {
+            button.material.emissiveIntensity = 0.5;
+        }
+    });
+}
 
 // 初始化檢查表
 function initializeChecklist() {
