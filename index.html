@@ -3,28 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A320 暖機程序檢查表</title>
+    <title>A320 互動式駕駛艙暖機程序</title>
     <!-- Bootstrap CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container mt-5">
-        <h1 class="text-center mb-4">A320 暖機程序檢查表</h1>
-        <div class="checklist-container">
-            <div class="progress mb-3">
-                <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 3D 視窗 -->
+            <div class="col-lg-8">
+                <div id="cockpit3d" class="cockpit-container">
+                    <div id="loadingProgress" class="loading-progress">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <p class="text-center text-light mt-2">載入中...</p>
+                    </div>
+                </div>
             </div>
-            <div id="checklistItems">
-                <!-- 檢查項目將由 JavaScript 動態生成 -->
-            </div>
-            <div class="mt-3">
-                <button id="resetBtn" class="btn btn-warning">重置檢查表</button>
+            
+            <!-- 檢查表面板 -->
+            <div class="col-lg-4">
+                <div class="checklist-panel">
+                    <h2 class="text-center mb-4">A320 暖機程序檢查表</h2>
+                    <div class="progress mb-3">
+                        <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <div id="checklistItems">
+                        <!-- 檢查項目將由 JavaScript 動態生成 -->
+                    </div>
+                    <div class="mt-3">
+                        <button id="resetBtn" class="btn btn-warning">重置檢查表</button>
+                        <button id="autoRotateBtn" class="btn btn-info">自動旋轉</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- Tween.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+    
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
